@@ -1,0 +1,2 @@
+- name: Unarchive files
+  run: unzip path/to/your/bokser-flutter-mvp.zip -d path/to/destination/
