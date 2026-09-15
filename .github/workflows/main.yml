@@ -1,2 +1,41 @@
-- name: Unarchive files
-  run: unzip path/to/your/bokser-flutter-mvp.zip -d path/to/destination/
+name: Unzip Flutter MVP
+
+# Воркфлоу будет запускаться автоматически при каждом push в ветку main
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch: # Позволит запускать скрипт вручную кнопкой на сайте
+
+jobs:
+  unzip-and-commit:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Клонируем ваш репозиторий на виртуальную машину
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Step 2: Распаковываем архив bokser-flutter-mvp.zip в корень репозитория
+      - name: Unzip project archive
+        run: |
+          unzip -o bokser-flutter-mvp.zip -d ./
+          
+      # Step 3: Удаляем сам ZIP-архив, чтобы он не занимал место в репозитории (опционально)
+      - name: Remove zip file
+        run: rm bokser-flutter-mvp.zip
+
+      # Step 4: Коммитим распакованные файлы обратно в ваш репозиторий
+      - name: Commit and Push changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          
+          # Проверяем, появились ли новые файлы, чтобы избежать ошибок при пустом коммите
+          if git diff --staged --quiet; then
+            echo "Нет новых файлов для сохранения."
+          else
+            git commit -m "Автоматическая распаковка bokser-flutter-mvp.zip через Actions"
+            git push origin main
+          fi
